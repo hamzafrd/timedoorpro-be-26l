@@ -3,39 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use PhpParser\Node\Stmt\TryCatch;
+use Throwable;
 
-class ProductController extends Controller
+class ProductsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
-        $token = env('TOKEN_PASS');
-
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'token' => 'required|string|max:50',
-            ],
-            [
-                'token.required' => "Token wajib diisi"
-            ]
-        );
-
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            $errorMessages = implode(', ', $errors);
-            return $this->responseJson($errorMessages, 400);
-        }
-
-        if ($request->token != $token) {
-            return $this->responseJson("Token invalid", 400);
-        }
-
         $products = Product::all();
         return $this->responseJson("Ok", 200, $products);
     }
@@ -43,7 +22,7 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
 
         $validator = Validator::make(
@@ -58,7 +37,6 @@ class ProductController extends Controller
                 'name.string' => 'name must be filled by array ',
                 'name.max' => 'max 50 chars',
                 'price.required' => 'price must be filled',
-                'price.required' => 'price must be a number',
                 'stock.required' => 'stock must be filled',
                 'stock.integer' => 'stock must be filled by integer',
                 'stock.min' => 'stock must be positive',
@@ -80,7 +58,7 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, string $id)
+    public function show(Request $request, string $id): JsonResponse
     {
 
         $product = Product::findOrFail($id);
@@ -95,24 +73,22 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): JsonResponse
     {
 
         $validator = Validator::make(
             $request->all(),
             [
-
                 'name' => 'required|string|max:50',
                 'price' => 'required|numeric',
                 'stock' => 'required|integer|min:0',
-
             ],
             [
                 'name.required' => 'name must be filled',
                 'name.string' => 'name must be filled by array ',
                 'name.max' => 'max 50 chars',
                 'price.required' => 'price must be filled',
-                'price.required' => 'price must be a number',
+                'price.numeric' => 'price must be a number',
                 'stock.required' => 'stock must be filled',
                 'stock.integer' => 'stock must be filled by integer',
                 'stock.min' => 'stock must be positive',
@@ -134,28 +110,20 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id): JsonResponse
 
     {
         try {
             //code...
             $product = Product::findOrFail($id);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             //throw $th;
             return $this->responseJson('produk tidak ditemukan', 404);
         }
-
 
 
         $product->delete();
         return $this->responseJson('produk berhasil dihapus', 200, null);
     }
 
-    public function responseJson($message, $status = 200, $data = null)
-    {
-        return response()->json([
-            'data' => $data,
-            'message' => $message
-        ], $status);
-    }
 }

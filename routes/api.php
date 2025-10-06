@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\AuthApiController;
+use App\Http\Controllers\ProductsController;
 use Illuminate\Support\Facades\Route;
-use App\http\Controllers\ProductController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -13,14 +14,18 @@ use App\http\Controllers\ProductController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::post('/login', [AuthApiController::class, 'login']);
+Route::post('/register', [AuthApiController::class, 'register']);
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthApiController::class, 'logout']);
 
-
-Route::get('/products', [ProductController::class,'index']);
-Route::get('/products/{id}', [ProductController::class,'show']);
-Route::post('/products', [ProductController::class,'store']);
-Route::put('/products/{id}', [ProductController::class,'update']);
-Route::delete('/products/{id}', [ProductController::class,'destroy']);
+    Route::get('/products', [ProductsController::class, 'index']);
+    Route::get('/products/{id}', [ProductsController::class, 'show']);
+    Route::post('/products', [ProductsController::class, 'store']);
+    Route::put('/products/{id}', [ProductsController::class, 'update']);
+    Route::delete('/products/{id}', [ProductsController::class, 'destroy']);
+});
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
