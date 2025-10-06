@@ -84,4 +84,9 @@ class AuthApiController extends Controller
         $request->user()->tokens()->delete();
         return $this->responseJson("Logged Out Succesfully !");
     }
+
+    function failedLoggedIn(): JsonResponse
+    {
+        return $this->responseJson("Gagal, Authentikasi tidak tepat !", 401);
+    }
 }
